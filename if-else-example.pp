@@ -7,3 +7,11 @@ if $facts['is_virtual'] {
 } else {
   notify{'No condition is met':}
 }
+
+$a=5
+$b=3
+if $a == $b {
+  notify{'Both a and b are same':}
+} else {
+  notify{'a and b are not same':}
+}
