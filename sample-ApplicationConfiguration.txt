@@ -1,0 +1,65 @@
+## Install Apache
+
+# Install the Apache HTTP Server:
+
+  sudo yum install httpd
+
+# Edit the main Apache configuration file to adjust the resource use settings.
+
+  File: /etc/httpd/conf/httpd.conf
+        <IfModule prefork.c>
+            StartServers        4
+            MinSpareServers     20
+            MaxSpareServers     40
+            MaxClients          200
+            MaxRequestsPerChild 4500
+        </IfModule>
+
+# Configure Apache for Virtual Hosting
+  Create a file under /etc/httpd/conf.d named vhost.conf. Replace instances of example.com with your own domain information:
+
+  File: /etc/httpd/conf.d/vhost.conf
+        <VirtualHost *:80>
+             ServerAdmin admin@example.org
+             ServerName example.org
+             ServerAlias www.example.org
+             DocumentRoot /srv/www/example.org/public_html/
+             ErrorLog /srv/www/example.org/logs/error.log
+             CustomLog /srv/www/example.org/logs/access.log combined
+        </VirtualHost>
+
+
+# Create the directories referenced above:
+    sudo mkdir -p /srv/www/example.org/public_html
+    sudo mkdir -p /srv/www/example.org/logs
+
+# Start Apache:
+    sudo service httpd start
+    Set Apache to start at boot:
+    sudo chkconfig httpd on
+
+## Apache Mods and Scripting
+
+# Install Apache Modules
+
+  By default, modules are located in the /etc/httpd/modules/ directory. Configuration directives for the default modules are located in /etc/httpd/conf/httpd.conf, 
+  while configuration options for optional modules installed with yum are generally placed in .conf files in /etc/httpd/conf.d/.
+    List available Apache modules:
+    sudo yum search mod_
+    Install any desired modules:
+    sudo yum install mod_[module-name]
+    Modules should be enabled and ready to use following installation
+
+# Install Support for Scripting
+
+  The following commands install Apache support for server-side scripting in PHP, Python, and Perl. 
+  Support for these languages is optional based on your server environment.
+
+  To install:
+    Perl support:
+    sudo yum install mod_perl
+    Python support:
+    sudo yum install mod_wsgi
+    PHP support:
+    sudo yum install php php-pear
+
