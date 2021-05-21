@@ -1,0 +1,61 @@
+## Create a custom systemd service
+
+# Create test service file
+$test_service_content = 'info=/tmp/myservice-systemd-cat-pipe-info
+                         mkfifo "$info"
+                         trap "exec 3>&-; rm $info" EXIT
+                         systemd-cat -p info < "$info" &
+                         exec 3>"$info"
+                         DATE=`date '+%Y-%m-%d %H:%M:%S'`
+                         echo "Example service started at ${DATE}" | systemd-cat -p info
+                         while :
+                         do
+                         echo "Looping...";
+                         sleep 30;
+                         done
+                         '
+
+file {'Create test service file':
+  ensure  => present,
+  path    => '/var/tmp/test_service.sh',
+  content => $test_service_content,
+}
+
+# Copy the script to /usr/bin and make it executable
+file {'Copy service file':
+  ensure  => present,
+  path    => '/usr/bin/test_service.sh',
+  target  => '/var/tmp/test_service.sh',
+  mode    => '0755',
+}
+
+# Create a Unit file to define a systemd service
+$system_service_content = '[Unit]
+			   Description=Example systemd service.
+                           [Service]
+                           Type=simple
+                           ExecStart=/bin/bash /usr/bin/test_service.sh
+                           [Install]
+                           WantedBy=multi-user.target
+                           '
+file {'Create a Unit file for service':
+  ensure  => present,
+  path    => '/lib/systemd/system/myservice.service',
+  content => $system_service_content,
+}
+
+# Copy the unit file to /etc/systemd/system and give it permissions
+file {'Copy systemd service file':
+  ensure  => present,
+  path    => '/etc/systemd/system/myservice.service',
+  target  => '/lib/systemd/system/myservice.service',
+  mode    => '0644',
+}
+
+# Start and Enable the service
+service {'Start and Enable service':
+  ensure => running,
+  name   => 'myservice',
+  enable => true,
+}
+
