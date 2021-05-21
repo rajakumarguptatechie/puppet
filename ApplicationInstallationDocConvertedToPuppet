@@ -1,0 +1,63 @@
+# Install Apache
+
+# Install the Apache HTTP Server
+package { 'Install httpd package':
+  ensure => installed,
+  name   => 'httpd',
+}
+
+# Edit the main Apache configuration file to adjust the resource use settings.
+$httpd_file_content = '<IfModule prefork.c>
+                           StartServers        4
+                           MinSpareServers     20
+                           MaxSpareServers     40
+                           MaxClients          200
+                           MaxRequestsPerChild 4500
+                       </IfModule>
+                       '
+file { 'Create httpd conf file':
+  ensure  => present,
+  path    => '/etc/httpd/conf/httpd.conf',
+  content => $httpd_file_content,
+}
+
+# Configure Apache for Virtual Hosting
+$vhost_file_content = '<VirtualHost *:80>
+                             ServerAdmin admin@example.org
+                             ServerName example.org
+                             ServerAlias www.example.org
+                             DocumentRoot /srv/www/example.org/public_html/
+                             ErrorLog /srv/www/example.org/logs/error.log
+                             CustomLog /srv/www/example.org/logs/access.log combined
+                       </VirtualHost>
+                      '
+file { 'Create vertual host file':
+  ensure  => present,
+  path    => '/etc/httpd/conf.d/vhost.conf',
+  content => $vhost_file_content,
+}
+
+
+# Create the directories referenced above:
+$html_dirs = ['/srv', '/srv/www', 'srv/www/example.org', '/srv/www/example.org/logs', '/srv/www/example.org/public_html']
+$html_dirs.each |$my_dirs| {
+  file { "Create ${my_dirs}":
+    ensure => directory,
+    path   => $my_dirs,
+  }
+}
+
+
+# Start Apache:
+service { 'Start and Enable Apache':
+  ensure => running,
+  enable => true,
+}
+
+# Install Apache Modules
+$modules_pkgs = ['mod_perl', 'mod_wsgi', 'php', 'php-pear']
+$modules_pkgs.each |$pkg| {
+  package { "Install ${pkg}":
+    ensure => installed,
+    name   => $pkg,
+}       
