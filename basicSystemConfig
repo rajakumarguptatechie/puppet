@@ -1,0 +1,38 @@
+#1. package: telnet, wget
+
+$my_packages = ['telnet', 'wget']
+$my_packages.each |$pkg| {
+  package { "Install $pkg Package":
+    name   => $pkg,
+    ensure => installed,
+  }
+}
+
+
+#2. file: soft link of /var/tmp/a as /vartmp/b
+file { 'Create Soft Link':
+  path   => '/var/tmp/b',
+  ensure => link,
+  target => '/var/tmp/a',
+}
+
+#3. service: rsyslogd should be stopped
+service { 'Stop Rsyslogd Service':
+  name => 'rsyslog',
+  ensure => stopped,
+}
+
+#4. user-group: testTrianz
+group { 'Create TestTrianz group':
+  name => 'testtrianz',
+  ensure => present,
+  #gid    => 1500
+  before => User['Create test User'],
+}
+
+#5. user:test(testTrianz)
+user { 'Create test User':
+  name => 'test',
+  ensure => present,
+  groups => 'testtrianz',
+}
