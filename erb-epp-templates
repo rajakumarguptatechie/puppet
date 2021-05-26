@@ -81,7 +81,7 @@ keys <%= $keys_file %>
   file {'/var/tmp/test01.conf':
     ensure => $ensure_value,
     source => 'puppet:///modules/testfile/test01.conf',
-  # Loads /etc/puppetlabs/code/environments/production/modules/testfile/files/test01.conf.epp
+  # Loads /etc/puppetlabs/code/environments/production/modules/testfile/files/test01.conf
   }
 
   ## File creation using module template
