@@ -1,0 +1,100 @@
+<%# Below line is static content %>
+This is to test file creation via EPP template
+
+<%# Below line is static content with facts interpolation %>
+Hostname = <%= $facts[hostname] %>
+
+<%# Below line is static content with variable interpolation %>
+File ensure value passed via Hiera = <%= $testfile::ensure_value %>
+
+<%# Below lines are non-printing expression %>
+<% $a=5 -%>
+<% $b=3 -%>
+<% if $a == $b { -%>
+Both a and b are same
+<% } else { -%>
+a and b are not same
+<% } -%>
+=========================================================================================================================================================================
+##Puppet ERB templates
+https://puppet.com/docs/puppet/4.10/lang_template_erb.html
+
+An ERB template looks like a plain-text document interspersed with tags containing Ruby code. 
+When evaluated, this tagged code can modify text in the template.
+Puppet passes data to templates via special objects and variables, which you can use in the tagged Ruby code to control the templates’ output.
+
+<%# Non-printing tag -%>                          :Comment tag
+<% if @keys_enable -%>                            :Non-printing tag
+<%# Expression-printing tag ↓ -%>                
+keys <%= @keys_file %>                            :Expression-printing tag
+<% unless @keys_trusted.empty? -%>
+trustedkey <%= @keys_trusted.join(' ') %>
+<% end -%>
+<% if @keys_requestkey != '' -%>
+requestkey <%= @keys_requestkey %>
+<% end -%>
+<% if @keys_controlkey != '' -%>
+controlkey <%= @keys_controlkey %>
+<% end -%>
+<% end -%>
+
+
+##Space trimming
+You can trim whitespace surrounding a non-printing tag by adding hyphens (-) to the tag delimiters.
+
+    <%- — If the tag is indented, trim the indentation.
+    -%> — If the tag ends a line, trim the following line break
+    
+##Conditional Statement
+<% if @broadcast != "NONE" %>broadcast <%= @broadcast %><% end %>
+
+##Iteration
+<% @values.each do |val| -%>
+Some stuff with <%= val %>
+<% end -%>
+======================================================================================================================================================================
+Puppet EPP templates
+https://puppet.com/docs/puppet/4.10/lang_template_epp.html
+
+An EPP template looks like a plain-text document interspersed with tags containing Puppet expressions. 
+When evaluated, these tagged expressions can modify text in the template. You can use Puppet variables in an EPP template to customize its output.
+
+<%# Parameter tag -%>
+<%- | Boolean $keys_enable,
+      String  $keys_file,
+      Array   $keys_trusted,
+      String  $keys_requestkey,
+      String  $keys_controlkey
+| -%>
+
+
+<%# Non-printing tag -%>
+<% if $keys_enable { -%>
+
+<%# Expression-printing tag -%>
+keys <%= $keys_file %>
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  ## File creation using module filess
+  file {'/var/tmp/test01.conf':
+    ensure => $ensure_value,
+    source => 'puppet:///modules/testfile/test01.conf',
+  # Loads /etc/puppetlabs/code/environments/production/modules/testfile/files/test01.conf.epp
+  }
+
+  ## File creation using module template
+  # epp(<FILE REFERENCE>, [<PARAMETER HASH>])
+  file { '/var/tmp/test02.conf':
+    ensure  => file,
+    content => epp('testfile/test02.conf.epp'),
+  # Loads /etc/puppetlabs/code/environments/production/modules/testfile/templates/test02.conf.epp
+  }
+
+  # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
+  file { '/var/tmp/test03.conf':
+    ensure  => file,
+    content => template('testfile/test03.conf.erb'),
+  # Loads /etc/puppetlabs/code/environments/production/modules/testfile/templates/test03.conf.erb
+  }
