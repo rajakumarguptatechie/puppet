@@ -1,3 +1,18 @@
+# case syntax
+case <condition> {
+  match01: {
+    do-something01
+    do-something02
+  }
+  match02: {
+    do-something01
+    do-something02
+  }
+  defaults:
+    do-something
+  }
+}  
+
 # case example
 case $facts['os']['name'] {
   'RedHat', 'CentOS':  {
