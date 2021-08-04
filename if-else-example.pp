@@ -1,4 +1,3 @@
-## Puppet DSl examples
 # if-else syntax
 1. Simple if
 if <condition> {
