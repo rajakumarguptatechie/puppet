@@ -25,3 +25,4 @@ case $facts['os']['name'] {
     notify{'This server belong neither to Redhat nor Debian family':}
   }
 }
+
