@@ -1,0 +1,10 @@
+Puppet manifest validation
+1. Puppet parser: syntax validation (built-in feature of puppet)
+# puppet parser validate manifests/site.pp
+
+2. Puppet-lint: code standerization validation (puppet-lint must be installed)
+# puppet-lint manifests/site.pp
+
+Note: Install puppet-lint
+yum install gem -y
+gem install puppet-lint
