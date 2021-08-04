@@ -1,0 +1,7 @@
+1. puppet agent collects facts from agent node and sends to puppet master to catalog
+2. It compiles all manifest which are applicable to target node
+3. create a compilled manifests(compiled version of all applicable manifests)
+4. puppet agent gets the catalog and apply the resource in order to achieve desired state
+5. Ipuppet agent create a run report and send back to puppet master
+6. puppet master store the run report
+7. Dashboard will talk to DB and display run results on dashboard
