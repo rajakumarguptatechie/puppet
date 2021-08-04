@@ -1,0 +1,40 @@
+Variables:
+a. How to declare ($variable_name)
+b. Where to declare(Manifests)
+c. Types of variables(Boolean, Integer, String, Array, Hash)
+d. How to call/interpolate that variable(As attribute value or for some other purpose)
+e. Where to pass values for declared varaiables(Hiera)
+
+# Manifests: Declare/Call variables
+class testtrianzmodule::configure_user (
+  String  $user_ensure,
+  String  $my_user,
+  Boolean $is_virtual,
+  Integer $my_uid,
+  Array[Integer] $my_int_arr,
+  Array[String] $my_str_arr,
+  ) {
+  user {'Create test User':
+    ensure => $user_ensure,
+    name   => $my_user,
+    uid    => $my_uid,
+  }
+  notice("Is this virtual: ${is_virtual}")
+  $my_int_arr.each |Integer mia| do
+    notice("This is array element: ${mia}")
+  end
+  $my_str_arr.each |Integer msa| do
+    notice("This is array element: ${msa}")
+  end
+}
+
+# Hiera: Passing variable's values
+testtrianzmodule::configure_user::is_virtual: true
+testtrianzmodule::configure_user::my_uid: 1001
+testtrianzmodule::configure_user::my_int_arr:
+ - 10
+ - 20
+ - 30
+testtrianzmodule::configure_user::my_str_arr:
+ - 'ram'
+ - 'sita'
