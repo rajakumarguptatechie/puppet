@@ -1,0 +1,57 @@
+vi /etc/puppetlab/code/environment/production/modules/myservice/manifests/init.pp
+
+
+  # Create test service file
+  $myservice_content = 'info=/tmp/myservice-systemd-cat-pipe-info
+			mkfifo "$info"
+			trap "exec 3>&-; rm $info" EXIT
+			systemd-cat -p info < "$info" &
+			exec 3>"$info"
+			DATE=`date \'+%Y-%m-%d %H:%M:%S\'`
+			echo "Example service started at ${DATE}" | systemd-cat -p info
+			while :
+			do
+			  echo "Looping...";
+  			  sleep 30;
+			done'
+			
+  file{'/var/tmp/test_service.sh':
+    ensure  => present,
+    content => $myservice_content,
+  }
+  
+  # Copy the script to /usr/bin and make it executable
+  file{'/usr/bin/test_service.sh':
+    ensure  => present,
+    content => $myservice_content,
+    mode     => 0755,
+  }
+  # Create a Unit file to define a systemd service
+  $myunit_content='[Unit]
+		  Description=Example systemd service.
+		  [Service]
+                  Type=simple
+                  ExecStart=/bin/bash /usr/bin/test_service.sh
+                  [Install]
+                  WantedBy=multi-user.target'
+  file{'/lib/systemd/system/myservice.service':
+    ensure  => present,
+    content => $myunit_content,
+  }
+
+  exec{'Copy the file':
+    command => '/bin/cp /var/tmp/test_service.sh /usr/bin/test_service.sh && chmod +x /usr/bin/test_service.sh',
+    path    => ['/bin','/usr/sbin',/usr/bin'],
+  }
+  # Copy the unit file to /etc/systemd/system and give it permissions
+  file{'/etc/systemd/system/myservice.service':
+    ensure  => present,
+    content => $myunit_content,
+    mode     => 0644,
+  }
+
+  # Start and Enable the service
+  service{'myservice':
+    ensure => running,
+    enable => true,
+  }  
