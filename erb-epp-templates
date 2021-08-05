@@ -18,6 +18,7 @@ a and b are not same
 =========================================================================================================================================================================
 ##Puppet ERB templates
 https://puppet.com/docs/puppet/4.10/lang_template_erb.html
+Note: Validate ERB template: erb -x -T '-' <template> | ruby -c
 
 An ERB template looks like a plain-text document interspersed with tags containing Ruby code. 
 When evaluated, this tagged code can modify text in the template.
