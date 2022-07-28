@@ -1,2 +1,0 @@
-This is to test file creation via EPP template
-Hostname = <%= $facts[hostname] %>
